@@ -1,0 +1,65 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2708";
+
+    fragment@0 {
+        target = <&i2s>;
+        __overlay__ {
+            status = "okay";
+        };
+    };
+
+    fragment@1 {
+        target-path = "/";
+        __overlay__ {
+            card_codec: card-codec {
+                #sound-dai-cells = <0>;
+                compatible = "invensense,admp441";
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@2 {
+        target = <&sound>;
+        master_overlay: __dormant__ {
+            compatible = "simple-audio-card";
+            simple-audio-card,format = "i2s";
+            simple-audio-card,name = "soundcard";
+            simple-audio-card,bitclock-master = <&dailink0_master>;
+            simple-audio-card,frame-master = <&dailink0_master>;
+            status = "okay";
+            simple-audio-card,cpu {
+                sound-dai = <&i2s>;
+            };
+            dailink0_master: simple-audio-card,codec {
+                sound-dai = <&card_codec>;
+            };
+        };
+    };
+
+    fragment@3 {
+        target = <&sound>;
+        slave_overlay: __overlay__ {
+                compatible = "simple-audio-card";
+                simple-audio-card,format = "i2s";
+                simple-audio-card,name = "soundcard";
+                status = "okay";
+                simple-audio-card,cpu {
+                    sound-dai = <&i2s>;
+                };
+                dailink0_slave: simple-audio-card,codec {
+                    sound-dai = <&card_codec>;
+                };
+        };
+    };
+
+    __overrides__ {
+        alsaname = <&master_overlay>,"simple-audio-card,name",
+                    <&slave_overlay>,"simple-audio-card,name";
+        compatible = <&card_codec>,"compatible";
+        master = <0>,"=2!3";
+    };
+};
