@@ -26,22 +26,26 @@ static struct snd_soc_dai_driver admp441_dai = {
 	},
 };
 
-static struct snd_soc_codec_driver admp441_codec_driver = { };
+static struct snd_soc_component_driver admp441_component_driver = { };
 
 static int admp441_probe(struct platform_device *pdev)
 {
-	return snd_soc_register_codec(&pdev->dev, &admp441_codec_driver, &admp441_dai, 1);
+	return devm_snd_soc_register_component(&pdev->dev,
+			&admp441_component_driver,
+			&admp441_dai, 1);
 }
 
+//TODO(thatsdone): Is this required?
 static int admp441_remove(struct platform_device *pdev)
 {
-	snd_soc_unregister_codec(&pdev->dev);
+	snd_soc_unregister_component(&pdev->dev);
+	//TODO(thatsdone): To check DMA destory required?
 	return 0;
 }
 
 #ifdef CONFIG_OF
 static const struct of_device_id admp441_ids[] = {
-	{ .compatible = "invensense,admp441", },
+	{ .compatible = "adi,admp441", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, admp441_ids);
